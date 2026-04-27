@@ -2,6 +2,8 @@
 
 A minimal floating overlay that shows your real-time study speed while reviewing cards in Anki.
 
+<img width="192" height="136" alt="image" src="https://github.com/user-attachments/assets/d7735bb1-20be-44b3-a8b7-cdd06acf8857" />
+
 ## What it shows
 
 During a review session, a small panel appears in the corner of the screen:
