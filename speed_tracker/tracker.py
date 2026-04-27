@@ -1,8 +1,12 @@
+import json
 from collections import deque
+from pathlib import Path
 from time import time
 from typing import Optional
 
 from .config import IDLE_GAP_SECONDS
+
+_PERSIST_MAX_AGE_S = 7200  # discard timestamps older than 2 h on save/load
 
 
 class SpeedTracker:
@@ -61,6 +65,31 @@ class SpeedTracker:
         if rate < 0.1:
             return None
         return remaining_cards / rate
+
+    def save(self, path: Path) -> None:
+        now = time()
+        try:
+            data = {
+                "timestamps": [t for t in self._timestamps if now - t <= _PERSIST_MAX_AGE_S],
+                "session_start": self._session_start,
+                "last_answer": self._last_answer,
+            }
+            path.write_text(json.dumps(data))
+        except Exception:
+            pass
+
+    def load(self, path: Path) -> None:
+        try:
+            data = json.loads(path.read_text())
+            now = time()
+            timestamps = [t for t in data.get("timestamps", []) if now - t <= _PERSIST_MAX_AGE_S]
+            self._timestamps = deque(timestamps, maxlen=4096)
+            last_answer = data.get("last_answer")
+            if last_answer and (now - last_answer) <= _PERSIST_MAX_AGE_S:
+                self._session_start = data.get("session_start")
+                self._last_answer = last_answer
+        except Exception:
+            pass
 
     def reset(self) -> None:
         self._timestamps.clear()

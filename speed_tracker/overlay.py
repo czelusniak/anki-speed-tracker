@@ -140,6 +140,12 @@ class SpeedOverlay(QWidget):
 
         m = OVERLAY_MARGIN
         mb = OVERLAY_BOTTOM_MARGIN
+        try:
+            bw = mw.bottomWeb
+            if bw and bw.isVisible():
+                mb = max(bw.height() + OVERLAY_MARGIN, mb)
+        except AttributeError:
+            pass
         positions = {
             "bottom-right": (pw - ow - m,  ph - oh - mb),
             "bottom-left":  (m,             ph - oh - mb),

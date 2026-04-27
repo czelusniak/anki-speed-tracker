@@ -1,10 +1,16 @@
+from pathlib import Path
+from typing import Optional
+
 from aqt import gui_hooks, mw
 from aqt.reviewer import Reviewer
 from .tracker import SpeedTracker
 from .overlay import SpeedOverlay
 
+_STATE_PATH = Path(__file__).parent / "state.json"
+
 tracker = SpeedTracker()
-overlay: SpeedOverlay | None = None
+tracker.load(_STATE_PATH)
+overlay: Optional[SpeedOverlay] = None
 
 
 def _on_answer(reviewer: Reviewer, card, ease: int) -> None:
@@ -27,7 +33,7 @@ def _on_reviewer_end() -> None:
         overlay.hide()
         overlay.deleteLater()
         overlay = None
-    tracker.reset()
+    tracker.save(_STATE_PATH)
 
 
 gui_hooks.reviewer_did_answer_card.append(_on_answer)
